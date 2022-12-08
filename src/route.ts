@@ -21,6 +21,7 @@ export const routing: string[] = [
 
   // Then do the scaling leveling
   "Leveling/Oliver's Fights",
+  "Leveling/Seals",
   "Leveling/Neverending Party",
   "Leveling/Pop Gooso",
   "Leveling/Sausage Fights",

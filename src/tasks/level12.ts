@@ -122,13 +122,14 @@ const Flyers: Task[] = [
 
 const Lighthouse: Task[] = [
   // Saber into more lobsterfrogmen
-  /*{
+  {
     name: "Lighthouse",
     after: ["Enrage"],
     completed: () =>
       itemAmount($item`barrel of gunpowder`) >= 5 ||
       get("sidequestLighthouseCompleted") !== "none" ||
       !have($item`Fourth of May Cosplay Saber`) ||
+      get("hasAutumnaton") ||
       args.fluffers,
     do: $location`Sonofa Beach`,
     outfit: (): OutfitSpec => {
@@ -172,12 +173,13 @@ const Lighthouse: Task[] = [
     completed: () =>
       itemAmount($item`barrel of gunpowder`) >= 5 ||
       get("sidequestLighthouseCompleted") !== "none" ||
+      get("hasAutumnaton") ||
       args.fluffers,
     do: $location`Sonofa Beach`,
     outfit: { modifier: "+combat" },
     combat: new CombatStrategy().kill($monster`lobsterfrogman`),
     limit: { soft: 40 },
-  },*/
+  },
   {
     name: "Lighthouse End",
     after: ["Enrage"],

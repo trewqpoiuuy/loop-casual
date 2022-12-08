@@ -101,7 +101,7 @@ export const MiscQuest: Quest = {
         familiarEquippedEquipment($familiar`Shorter-Order Cook`) === $item`blue plate`,
       acquire: [{ item: $item`blue plate` }],
       do: () => useFamiliar($familiar`Mosquito`), // Switch away to keep blue plate equipped
-      outfit: { familiar: $familiar`Shorter-Order Cook`, equip: $items`blue plate` },
+      outfit: { familiar: $familiar`Shorter-Order Cook`, equip: $items`blue plate`, modifier: "mp" },
       freeaction: true,
       limit: { tries: 1 },
     },
@@ -359,7 +359,7 @@ export const MiscQuest: Quest = {
         //lighthouse
         else if (AutumnAton.currentUpgrades().length >= 4 &&
           step("questL12War") >= 1 &&
-          itemAmount($item`barrel of gunpowder`) === 0 &&
+          itemAmount($item`barrel of gunpowder`) < 5 &&
           get("sidequestLighthouseCompleted") === "none"){
           adv1($location`Sonofa Beach`);
           AutumnAton.sendTo($location`Sonofa Beach`);
@@ -371,10 +371,9 @@ export const MiscQuest: Quest = {
           adv1($location`The Oasis`);
         }
       },
-      limit: { tries: 3 },
-      freeaction: true,
+      limit: { tries: 15 },
     },
-    {
+    /*{
       name: "CMC",
       after: [],
       priority: () => true,
@@ -388,7 +387,7 @@ export const MiscQuest: Quest = {
       },
       limit: { tries: 1 },
       freeaction: true,
-    },
+    },*/
     {
       name: "Goose Exp",
       after: ["Short Cook"],
