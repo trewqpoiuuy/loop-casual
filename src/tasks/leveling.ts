@@ -19,6 +19,7 @@ import {
   use,
   useSkill,
   visitUrl,
+  weightAdjustment,
 } from "kolmafia";
 import {
   $class,
@@ -80,10 +81,10 @@ export const LevelingQuest: Quest = {
           acquire(1, $item`roasted vegetable focaccia`, 20000)
           eatSafe(1, $item`roasted vegetable focaccia`, args.voa);
         }
-        /*if (mallPrice($item`pulled blue taffy`) <= 5000){
+        if (mallPrice($item`pulled blue taffy`) <= 5000 && !have($effect`Blue Swayed`)){
           buy($item`pulled blue taffy`, 5)
           use($item`pulled blue taffy`, 5);
-        }*/
+        }
       },
       freeaction: true,
       limit: { tries: 1 },
@@ -280,7 +281,8 @@ export const LevelingQuest: Quest = {
         have($familiar`Pocket Professor`) &&
         have($item`Kramco Sausage-o-Matic™`) &&
         getKramcoWandererChance() === 1,
-      completed: () => get("_sausageFights") > 0 || myLevel() >= args.levelto || !args.professor,
+      completed: () => (get("_pocketProfessorLectures") >= (familiarWeight($familiar`Pocket Professor`) + weightAdjustment()))  || 
+                        myLevel() >= args.levelto || !args.professor,
       do: $location`The Outskirts of Cobb's Knob`,
       combat: new CombatStrategy()
         .macro(
