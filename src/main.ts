@@ -31,15 +31,15 @@ export const args = Args.create("loopcasual", "A script to complete casual runs.
   }),
   stomach: Args.number({
     help: "Amount of stomach to fill.",
-    default: 10,
+    default: 8,
   }),
   liver: Args.number({
     help: "Amount of liver to fill.",
-    default: 10,
+    default: 15,
   }),
   spleen: Args.number({
     help: "Amount of spleen to fill.",
-    default: 10,
+    default: 15,
   }),
   voa: Args.number({
     help: "Value of an adventure, in meat, for determining diet.",

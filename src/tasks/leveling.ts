@@ -120,8 +120,13 @@ export const LevelingQuest: Quest = {
       after: [],
       ready: () => have($item`Bastille Battalion control rig`),
       completed: () => get("_bastilleGames") !== 0 || myLevel() >= args.levelto,
-      do: () =>
-        cliExecute(`bastille ${myPrimestat() === $stat`Mysticality` ? "myst" : myPrimestat()}`),
+      do: () => {
+        if (get("ascensionsToday") === 1){
+          cliExecute(`bastille ${myPrimestat() === $stat`Mysticality` ? "myst" : myPrimestat()} brutalist gesture`);
+        } else {
+          cliExecute(`bastille ${myPrimestat() === $stat`Mysticality` ? "myst" : myPrimestat()} draftsman gesture`);
+        }
+      },
       limit: { tries: 1 },
       freeaction: true,
       outfit: {
@@ -281,7 +286,7 @@ export const LevelingQuest: Quest = {
         have($familiar`Pocket Professor`) &&
         have($item`Kramco Sausage-o-Matic™`) &&
         getKramcoWandererChance() === 1,
-      completed: () => (get("_pocketProfessorLectures") >= (familiarWeight($familiar`Pocket Professor`) + weightAdjustment()))  || 
+      completed: () =>  get("_sausageFights") > 0 || 
                         myLevel() >= args.levelto || !args.professor,
       do: $location`The Outskirts of Cobb's Knob`,
       combat: new CombatStrategy()
@@ -310,7 +315,7 @@ export const LevelingQuest: Quest = {
       combat: new CombatStrategy().killHard(),
       outfit: {
         modifier: "mainstat, 4exp, monster level percent",
-        equip: $items`teacher's pen, teacher's pen`,
+        equip: $items`teacher's pen, grey down vest`,
         familiar: $familiar`Grey Goose`,
       },
       limit: { tries: 3 },
@@ -329,7 +334,7 @@ export const LevelingQuest: Quest = {
       combat: new CombatStrategy().macro(new Macro().attack().repeat()),
       outfit: {
         modifier: "mainstat, 4exp, monster level percent, club",
-        equip: $items`teacher's pen, teacher's pen`,
+        equip: $items`teacher's pen, grey down vest`,
         familiar: $familiar`Grey Goose`,
       },
       limit: { tries: 10 },
@@ -364,7 +369,7 @@ export const LevelingQuest: Quest = {
         .killHard(),
       outfit: {
         modifier: "mainstat, 4exp, monster level percent, familiar experience ",
-        equip: $items`makeshift garbage shirt, unbreakable umbrella, teacher's pen, teacher's pen`,
+        equip: $items`makeshift garbage shirt, unbreakable umbrella, teacher's pen, grey down vest`,
         familiar: $familiar`Grey Goose`,
       },
       limit: { tries: 11 },
@@ -383,6 +388,7 @@ export const LevelingQuest: Quest = {
         },
       ],
       ready: () => have($familiar`Grey Goose`) && familiarWeight($familiar`Grey Goose`) === 20 ,
+      prepare: () => visitUrl("council.php"),
       priority: () => true,
       completed: () => get("_eldritchTentacleFought") || myLevel() >= args.levelto,
       do: () => {

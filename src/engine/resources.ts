@@ -35,6 +35,7 @@ import {
   Macro,
   sum,
 } from "libram";
+import { args } from "../main";
 import { debug } from "../lib";
 
 export interface Resource {
@@ -285,7 +286,7 @@ export const wandererSources: WandererSource[] = [
     name: "Kramco (Drones)",
     available: () =>
       have($item`Kramco Sausage-o-Matic™`) &&
-      myLevel() >= 10 &&
+      myLevel() >= args.levelto &&
       have($familiar`Grey Goose`) &&
       familiarWeight($familiar`Grey Goose`) >= 6 &&
       getKramcoWandererChance() === 1,
