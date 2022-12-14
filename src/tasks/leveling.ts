@@ -75,7 +75,7 @@ export const LevelingQuest: Quest = {
           ensureEffect($effect`Stuck That Way`);
         }
         if (!get("_aprilShower")) {
-          cliExecute("shower warm");
+          cliExecute(`shower ${myPrimestat()}`);
         }
         if (myFullness() + 2 <= args.stomach && !have($effect`Feeling Fancy`)){
           acquire(1, $item`roasted vegetable focaccia`, 20000)
@@ -308,7 +308,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Oliver's Fights",
-      after: [],
+      after: ["Buffs"],
       acquire: [],
       completed: () => get("_speakeasyFreeFights") >= 3 || myLevel() >= args.levelto,
       do: $location`An Unusually Quiet Barroom Brawl`,
@@ -323,10 +323,10 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Seals",
-      after: [],
+      after: ["Oliver's Fights"],
       acquire: [],
       ready: () => myClass() === $class`Seal Clubber`,
-      completed: () => get("_sealsSummoned") >= 10 || myLevel() >= args.levelto,
+      completed: () => get("_sealsSummoned") >= 10 || myLevel() >= args.levelto || myClass() !== $class`Seal Clubber`,
       do: () => {
         use($item`figurine of a wretched-looking seal`);
         runChoice(1);
@@ -342,7 +342,7 @@ export const LevelingQuest: Quest = {
     },
     {
       name: "Neverending Party",
-      after: [],
+      after: ["Seals"],
       acquire: [
         {
           item: $item`makeshift garbage shirt`,
@@ -378,7 +378,9 @@ export const LevelingQuest: Quest = {
     {
       name: "Pop Gooso",
       combat: new CombatStrategy().macro(() =>
-              Macro.trySkill($skill`Convert Matter to Protein`)
+              Macro.externalIf(myPrimestat() === $stat`Muscle`, Macro.trySkill($skill`Convert Matter to Protein`))
+              .externalIf(myPrimestat() === $stat`Mysticality`, Macro.trySkill($skill`Convert Matter to Energy`))
+              .externalIf(myPrimestat() === $stat`Moxie`, Macro.trySkill($skill`Convert Matter to Pomade`))
           ).killHard(),
       after: [],
       acquire: [

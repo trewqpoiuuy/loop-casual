@@ -35,11 +35,11 @@ export const args = Args.create("loopcasual", "A script to complete casual runs.
   }),
   liver: Args.number({
     help: "Amount of liver to fill.",
-    default: 15,
+    default: 14,
   }),
   spleen: Args.number({
     help: "Amount of spleen to fill.",
-    default: 15,
+    default: 10,
   }),
   voa: Args.number({
     help: "Value of an adventure, in meat, for determining diet.",
@@ -55,7 +55,7 @@ export const args = Args.create("loopcasual", "A script to complete casual runs.
   }),
   professor: Args.flag({
     help: "Use pocket professor as one of the free leveling resources. This uses up some copiers, but may help to level.",
-    default: true,
+    default: false,
   }),
   fluffers: Args.boolean({
     help: "If true, use stuffing fluffers to finish the war.",

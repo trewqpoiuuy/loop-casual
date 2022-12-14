@@ -265,7 +265,7 @@ const ManorBasement: Task[] = [
     outfit: { modifier: "ML", equip: $items`unstable fulminate` },
     choices: { 902: 2 },
     combat: new CombatStrategy()
-      .kill($monster`monstrous boiler`)
+      .killHard($monster`monstrous boiler`)
       .banish($monsters`coaltergeist, steam elemental`),
     limit: { soft: 10 },
   },

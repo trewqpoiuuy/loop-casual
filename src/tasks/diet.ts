@@ -25,6 +25,7 @@ import {
   reverseNumberology,
   setProperty,
   turnsPerCast,
+  toInt,
   use,
   useFamiliar,
   useSkill,
@@ -158,7 +159,7 @@ export function acquire(qty: number, item: Item, maxPrice?: number, throwOnFail 
   const remaining = qty - startAmount;
   if (maxPrice === undefined) throw `No price cap for ${item.name}.`;
   if ($items`Boris's bread, roasted vegetable of Jarlsberg, Pete's rich ricotta, roasted vegetable focaccia,
-    baked veggie ricotta casserole, Calzone of Legend, Pizza of Legend`.includes(item)){
+    baked veggie ricotta casserole, plain calzone, Deep Dish of Legend, Calzone of Legend, Pizza of Legend`.includes(item)){
     print(`Trying to acquire ${qty} ${item.plural}; max price ${maxPrice.toFixed(0)}.`, "green");
     if (priceToCraft(item) <= maxPrice){
       retrieveItem(remaining, item);
@@ -171,7 +172,6 @@ export function acquire(qty: number, item: Item, maxPrice?: number, throwOnFail 
 
   if (qty * mallPrice(item) > 1000000) throw "Aggregate cost too high! Probably a bug.";
 
-  
   if (remaining <= 0) return qty;
   if (maxPrice <= 0) throw `buying disabled for ${item.name}.`;
 
@@ -264,6 +264,45 @@ function itemPriority<T>(menuItems: MenuItem<T>[]) {
   }
 }
 
+function recipeKnown(item: Item) { 
+  if ($items`Boris's bread, roasted vegetable of Jarlsberg, Pete's rich ricotta`.includes(item)) {
+    return !get(`unknownRecipe${toInt(item)}`);
+  }
+  var allComponentsKnown = !get(`unknownRecipe${toInt(item)}`);
+  const ingredients = getIngredients(item);
+  for (var i in ingredients) {
+    allComponentsKnown = allComponentsKnown && recipeKnown($item`${i}`);
+  }
+  return allComponentsKnown;
+}
+
+function cookBookBatMenu(): MenuItem<MenuData>[] {
+  /* Excluding 
+      - plain calzone, because the +ML buff may not be desirable
+      - Deep Dish of Legend, because the +familiar weight buff is best saved for garbo
+  */
+  var cookBookBatFoods = $items`Boris's bread, roasted vegetable of Jarlsberg, Pete's rich ricotta, roasted vegetable focaccia,
+    baked veggie ricotta casserole, Calzone of Legend, Pizza of Legend`;
+
+  var legendaryPizzasEaten:Item[] = []
+  if (get("calzoneOfLegendEaten")) legendaryPizzasEaten.push($item`Calzone of Legend`);
+  if (get("pizzaOfLegendEaten")) legendaryPizzasEaten.push($item`Pizza of Legend`);
+  if (get("deepDishOfLegendEaten")) legendaryPizzasEaten.push($item`Deep Dish of Legend`);
+
+  var cookBookBatFoodAvailable = cookBookBatFoods.filter(food => recipeKnown(food) && !legendaryPizzasEaten.includes(food));
+  return cookBookBatFoodAvailable.map(
+    food => new MenuItem(
+      food,
+      {
+        priceOverride: priceToCraft(food), 
+        maximum: $items`Calzone of Legend, 
+                        Pizza of Legend, 
+                        Deep Dish of Legend`.includes(food) ? 1 : 99,
+      }
+    )
+  );
+}
+
 function menu(): MenuItem<MenuData>[] {
   const spaghettiBreakfast =
     have($item`spaghetti breakfast`) &&
@@ -280,15 +319,9 @@ function menu(): MenuItem<MenuData>[] {
 
   const mallMin = (items: Item[]) => argmax(items.map((i) => [i, -mallPrice(i)]));
 
-  return [
+  const menu:MenuItem<MenuData>[] = [
     // FOOD
-    new MenuItem($item`Boris's bread`, { priceOverride: mallPrice($item`Yeast of Boris`) * 2 }),
-    new MenuItem($item`roasted vegetable of Jarlsberg`, { priceOverride: mallPrice($item`Vegetable of Jarlsberg`) * 2 }),
-    new MenuItem($item`Pete's rich ricotta`, { priceOverride: mallPrice($item`St. Sneaky Pete's Whey`) * 2 }),
-    new MenuItem($item`roasted vegetable focaccia`, { priceOverride: mallPrice($item`Yeast of Boris`) * 2 +  mallPrice($item`Vegetable of Jarlsberg`) * 2 }),
-    new MenuItem($item`baked veggie ricotta casserole`, { priceOverride: mallPrice($item`St. Sneaky Pete's Whey`) * 2 +  mallPrice($item`Vegetable of Jarlsberg`) * 2 }),
-    new MenuItem($item`Calzone of Legend`, { priceOverride: mallPrice($item`Yeast of Boris`) * 2 +  mallPrice($item`Vegetable of Jarlsberg`) * 2 + mallPrice($item`St. Sneaky Pete's Whey`) * 2, maximum: 1 }),
-    new MenuItem($item`Pizza of Legend`, { priceOverride: mallPrice($item`Yeast of Boris`) * 2 +  mallPrice($item`Vegetable of Jarlsberg`) * 2 + mallPrice($item`St. Sneaky Pete's Whey`) * 2, maximum: 1 }),
+    new MenuItem($item`Dreadsylvanian spooky pocket`),
     new MenuItem($item`tin cup of mulligan stew`),
     new MenuItem($item`frozen banquet`),
     new MenuItem($item`deviled egg`),
@@ -328,7 +361,8 @@ function menu(): MenuItem<MenuData>[] {
     }),
     new MenuItem($item`toasted brie`, { maximum: 1, data: { turns: 10 } }),
     new MenuItem($item`potion of the field gar`, { maximum: 1, data: { turns: 5 } }),
-  ];
+  ]
+  return menu.concat(cookBookBatMenu());
 }
 
 function shotglassMenu() {

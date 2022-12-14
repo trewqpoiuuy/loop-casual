@@ -50,7 +50,7 @@ export class MyActionDefaults implements ActionDefaults<CombatActions> {
   killHard(target?: Monster | Location) {
     if (
       (target && target instanceof Monster && target.physicalResistance >= 70) ||
-      weaponType(equippedItem($slot`Weapon`)) !== $stat`muscle`
+      weaponType(equippedItem($slot`Weapon`)) !== $stat`muscle` || myBuffedstat($stat`mysticality`) > myBuffedstat($stat`muscle`)
     ) {
       return this.delevel()
         .skill($skill`Saucegeyser`)

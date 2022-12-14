@@ -136,6 +136,7 @@ const Apartment: Task[] = [
     after: ["Apartment"],
     completed: () => get("hiddenApartmentProgress") >= 8,
     do: $location`An Overgrown Shrine (Northwest)`,
+    post: () => cliExecute("hottub"),
     choices: { 781: 2 },
     limit: { tries: 1 },
     freeaction: true,
