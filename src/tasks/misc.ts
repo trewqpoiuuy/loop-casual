@@ -1,19 +1,29 @@
 import {
   adv1,
+  buy,
+  canFaxbot,
   cliExecute,
+  chatPrivate,
+  expectedColdMedicineCabinet,
   familiarEquippedEquipment,
   familiarWeight,
+  getWorkshed,
   itemAmount,
+  Monster,
   myBasestat,
+  myLevel,
   myPrimestat,
-  myTurncount, totalTurnsPlayed,
+  myMaxhp,
+  restoreHp,
   retrieveItem,
   retrievePrice,
   runChoice,
+  totalTurnsPlayed,
   use,
   useFamiliar,
   useSkill,
   visitUrl,
+  wait,
 } from "kolmafia";
 import {
   $effect,
@@ -26,16 +36,22 @@ import {
   $skill,
   AutumnAton,
   Clan,
+  Counter,
+  CombatLoversLocket,
   get,
   getSaleValue,
   have,
   Macro,
   set,
   uneffect,
+  SourceTerminal,
+  Witchess,
 } from "libram";
 import { CombatStrategy } from "../engine/combat";
 import { Quest } from "../engine/task";
+import { args } from "../main";
 import { OutfitSpec, step } from "grimoire-kolmafia";
+
 
 export const MiscQuest: Quest = {
   name: "Misc",
@@ -97,6 +113,7 @@ export const MiscQuest: Quest = {
       after: [],
       ready: () => have($familiar`Shorter-Order Cook`),
       priority: () => true,
+      prepare: () =>   restoreHp(0.5 * myMaxhp()),
       completed: () =>
         familiarEquippedEquipment($familiar`Shorter-Order Cook`) === $item`blue plate`,
       acquire: [{ item: $item`blue plate` }],
@@ -406,6 +423,55 @@ export const MiscQuest: Quest = {
       limit: { tries: 1 },
       freeaction: true,
     },
+    {
+      name: "Setup Digitize",
+      ready: () => SourceTerminal.have() && args.digitize && 
+                    myLevel() >= args.levelto && (!have($familiar`Grey Goose`) || familiarWeight($familiar`Grey Goose`) >= 6),
+      completed: () => get("_sourceTerminalDigitizeMonster") === $monster`Witchess Knight`,
+      prepare: () =>  {
+        if (!SourceTerminal.isCurrentSkill($skill`Digitize`))
+          SourceTerminal.educate($skill`Digitize`);
+      },
+      priority: () => true,
+      do: () => {
+        if (Witchess.have()){
+          Witchess.fightPiece($monster`Witchess Knight`);
+        } else if (CombatLoversLocket.have() && CombatLoversLocket.availableLocketMonsters().includes($monster`Witchess Knight`) && 
+                    CombatLoversLocket.reminiscesLeft() > 1) {
+          CombatLoversLocket.reminisce($monster`Witchess Knight`)
+        } else if (!get("_photocopyUsed") && have($item`Clan VIP Lounge key`) && canFaxbot($monster`Witchess Knight`)){
+          chatPrivate("cheesefax", "Witchess Knight");
+          for(var i = 0; i < 3; i++){
+            wait(10);
+            if (checkFax($monster`Witchess Knight`)) {
+              use($item`photocopied monster`);
+              break;
+            }
+          }
+        } 
+        if (get("_sourceTerminalDigitizeMonster") != $monster`Witchess Knight`) {
+          buy($item`pocket wish`, 1, 50000);
+          cliExecute("genie monster witchess knight");
+        }
+      },
+      combat: new CombatStrategy().macro(
+        new Macro().trySkill($skill`Digitize`).trySkill($skill`Emit Matter Duplicating Drones`)
+        ).killHard(),
+      outfit: (): OutfitSpec => {
+        if (have($familiar`Grey Goose`)){
+          return {
+            familiar: $familiar`Grey Goose`,
+            // Get 11 famexp at the end of the fight, to maintain goose weight
+            offhand: $item`yule hatchet`,
+            famequip: $item`grey down vest`,
+            acc1: $item`teacher's pen`,
+            acc2: $item`teacher's pen`,
+            acc3: $item`teacher's pen`,
+          }
+        } else return {}
+      },
+      limit: { tries: 1 },
+    },
   ],
 };
 
@@ -508,3 +574,11 @@ export const KeysQuest: Quest = {
     },
   ],
 };
+
+// From garbo
+function checkFax(mon: Monster): boolean {
+  if (!have($item`photocopied monster`)) cliExecute("fax receive");
+  if (get("photocopyMonster") === mon) return true;
+  cliExecute("fax send");
+  return false;
+}

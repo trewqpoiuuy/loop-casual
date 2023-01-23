@@ -61,6 +61,10 @@ export const args = Args.create("loopcasual", "A script to complete casual runs.
     help: "If true, use stuffing fluffers to finish the war.",
     default: false,
   }),
+  digitize: Args.boolean({
+    help: "If true, digitize a witchess knight for use as a delay-burning wanderer. Leaves the last use open for garbo.",
+    default: true,
+  }),
 });
 export function main(command?: string): void {
   Args.fill(args, command);

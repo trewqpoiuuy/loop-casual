@@ -24,7 +24,6 @@ export class CombatStrategy extends BaseCombatStrategy.withActions(myActions) {}
 export class MyActionDefaults implements ActionDefaults<CombatActions> {
   ignore() {
     return new Macro()
-      .runaway()
       .skill($skill`Saucestorm`)
       .attack()
       .repeat();

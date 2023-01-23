@@ -32,11 +32,11 @@ const ABoo: Task[] = [
     acquire: [
       { item: $item`yellow rocket`, useful: () => !have($effect`Everything Looks Yellow`) },
     ],
-    priority: () => get("lastCopyableMonster") === $monster`toothy sklelton`, // After Defiled Nook
+    priority: () => get("lastCopyableMonster") === $monster`toothy sklelton` && myLevel() >= 9, // After Defiled Nook
     completed: () => itemAmount($item`A-Boo clue`) * 30 >= get("booPeakProgress"),
     prepare: () => {
-      // if (!SourceTerminal.isCurrentSkill($skill`Duplicate`))
-      //   SourceTerminal.educate([$skill`Duplicate`, $skill`Digitize`]);
+      if (!SourceTerminal.isCurrentSkill($skill`Duplicate`))
+        SourceTerminal.educate([$skill`Duplicate`, $skill`Digitize`]);
     },
     do: $location`A-Boo Peak`,
     outfit: (): OutfitSpec => {
@@ -62,7 +62,7 @@ const ABoo: Task[] = [
         if (get("lastCopyableMonster") === $monster`toothy sklelton`) {
           return new Macro()
             .trySkill($skill`Feel Nostalgic`)
-            //.trySkill(`Duplicate`)
+            .trySkill(`Duplicate`)
             .tryItem(`yellow rocket`);
         } else {
           return new Macro()
@@ -73,7 +73,7 @@ const ABoo: Task[] = [
       })
       .killHard(),
     choices: { 611: 1, 1430: 1 },
-    limit: { tries: 4 },
+    limit: { tries: 6 },
   },
   {
     name: "ABoo Horror",
@@ -162,6 +162,7 @@ const Twin: Task[] = [
     },
     choices: { 606: 4, 610: 1, 1056: 1 },
     acquire: [{ item: $item`rusty hedge trimmers` }],
+    outfit: { modifier: "init" },
     limit: { tries: 1 },
   },
 ];

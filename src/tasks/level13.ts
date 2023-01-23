@@ -1,5 +1,5 @@
-import { myAdventures, myLevel, runChoice, useSkill, visitUrl } from "kolmafia";
-import { $effects, $familiar, $item, $items, $location, $skill, $stat, get, Macro } from "libram";
+import { cliExecute, myAdventures, myLevel, print, runChoice, toEffect, useSkill, visitUrl } from "kolmafia";
+import { $effect, $effects, $familiar, $item, $items, $location, $skill, $stat, get, have, Macro } from "libram";
 import { CombatStrategy } from "../engine/combat";
 import { Quest, Task } from "../engine/task";
 import { step } from "grimoire-kolmafia";
@@ -330,7 +330,12 @@ export const TowerQuest: Quest = {
     {
       name: "Wall of Bones",
       after: ["Wall of Meat"],
-      prepare: () => useSkill($skill`Cannelloni Cocoon`),
+      prepare: () => {
+        useSkill($skill`Cannelloni Cocoon`);
+        for (var e in ["Spiky Shell", "Psalm of Pointiness", "Jalapeño Saucesphere", "Scarysauce"]) {
+          if (have(toEffect(e))) cliExecute(`uneffect ${e}`);
+        }
+      },
       completed: () => step("questL13Final") > 8,
       do: $location`Tower Level 3`,
       outfit: { modifier: "spell dmg, mys" },

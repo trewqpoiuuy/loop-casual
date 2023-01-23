@@ -26,6 +26,7 @@ import {
   $monster,
   $skill,
   AsdonMartin,
+  Counter,
   ensureEffect,
   get,
   getBanishedMonsters,
@@ -34,6 +35,7 @@ import {
   have,
   Macro,
   sum,
+  SourceTerminal
 } from "libram";
 import { args } from "../main";
 import { debug } from "../lib";
@@ -182,10 +184,36 @@ export function unusedBanishes(to_banish: Monster[]): BanishSource[] {
 export interface WandererSource extends Resource {
   monsters: Monster[];
   chance: () => number;
-  macro?: Macro;
+  macro?: Macro | (() => Macro);
 }
 
 export const wandererSources: WandererSource[] = [
+  {
+    name: "Digitize",
+    available: () =>
+      SourceTerminal.have() &&
+      args.digitize &&
+      get("_sourceTerminalDigitizeMonster") === $monster`Witchess Knight` &&
+      Counter.get("Digitize Monster") <= 0,
+    equip: have($familiar`Grey Goose`) ? {
+            familiar: $familiar`Grey Goose`,
+            // Get 11 famexp at the end of the fight, to maintain goose weight
+            offhand: $item`yule hatchet`,
+            famequip: $item`grey down vest`,
+            acc1: $item`teacher's pen`,
+            acc2: $item`teacher's pen`,
+            acc3: $item`teacher's pen`,
+        } : {},
+    prepare: () =>  {
+        if (!SourceTerminal.isCurrentSkill($skill`Digitize`))
+          SourceTerminal.educate($skill`Digitize`);
+      },
+    monsters: [$monster`witchess knight`],
+    chance: () => 1,
+    macro: () => new Macro().trySkill($skill`Emit Matter Duplicating Drones`).externalIf(
+      SourceTerminal.getDigitizeMonsterCount() >= 4 && SourceTerminal.getDigitizeUsesRemaining() > 1,
+      new Macro().trySkill("Digitize")),
+  },
   {
     name: "Voted Legs",
     available: () =>
@@ -336,13 +364,14 @@ const familiarEquip = have($item`astral pet sweater`)
   ? $item`luck incense`
   : null;
 const familiarGear = [
-  ...$items`Daylight Shavings Helmet, Buddy Bjorn, Stephen's lab coat, hewn moon-rune spoon`,
+  ...$items`Daylight Shavings Helmet, Stephen's lab coat, hewn moon-rune spoon, beach comb`,
+  ...(have($item`autumn leaf pendant`) ? [$item`autumn leaf pendant`] : []),
   ...(familiarEquip ? [familiarEquip] : []),
   ...(familiarPants ? [familiarPants] : []),
 ];
 const familiarGearBonus =
-  5 + sum(familiarGear, (item: Item) => getModifier("Familiar Weight", item));
-const familiarEffectBonus = 15;
+  sum(familiarGear, (item: Item) => getModifier("Familiar Weight", item));
+const familiarEffectBonus = 20;
 const runawayFamiliar = have($familiar`Frumious Bandersnatch`)
   ? $familiar`Frumious Bandersnatch`
   : have($familiar`Pair of Stomping Boots`)
@@ -396,9 +425,9 @@ export const runawaySources: RunawaySource[] = [
     available: () =>
       runawayFamiliar !== $familiar`none` &&
       have(runawayFamiliar) &&
-      availableFamiliarRunaways(5) > get("_banderRunaways"), // 5 from iFlail
+      availableFamiliarRunaways(10) > get("_banderRunaways"), // 5 from iFlail
     prepare: (): void => {
-      bjornifyFamiliar($familiar`Gelatinous Cubeling`);
+      //bjornifyFamiliar($familiar`Gelatinous Cubeling`);
       if (
         floor((familiarWeight(runawayFamiliar) + weightAdjustment()) / 5) <= get("_banderRunaways")
       ) {
@@ -407,10 +436,13 @@ export const runawaySources: RunawaySource[] = [
       if (runawayFamiliar === $familiar`Frumious Bandersnatch`) {
         ensureEffect($effect`Ode to Booze`, 5);
       }
+      if (get("_saberMod") === 0) {
+        cliExecute("saber familiar");
+      }
     },
     equip: {
       familiar: runawayFamiliar,
-      equip: [...familiarGear, $item`iFlail`],
+      equip: [...familiarGear, $item`cursed pirate cutlass`],
     },
     do: new Macro().runaway(),
     chance: () => 1,
@@ -421,9 +453,9 @@ export const runawaySources: RunawaySource[] = [
     available: () =>
       runawayFamiliar !== $familiar`none` &&
       have(runawayFamiliar) &&
-      availableFamiliarRunaways(10) > get("_banderRunaways"), // 10 from iFlails
+      availableFamiliarRunaways(20) > get("_banderRunaways"), // 10 from iFlails
     prepare: (): void => {
-      bjornifyFamiliar($familiar`Gelatinous Cubeling`);
+      //bjornifyFamiliar($familiar`Gelatinous Cubeling`);
       if (
         floor((familiarWeight(runawayFamiliar) + weightAdjustment()) / 5) <= get("_banderRunaways")
       ) {
@@ -432,10 +464,13 @@ export const runawaySources: RunawaySource[] = [
       if (runawayFamiliar === $familiar`Frumious Bandersnatch`) {
         ensureEffect($effect`Ode to Booze`, 5);
       }
+      if (get("_saberMod") === 0) {
+        cliExecute("saber familiar");
+      }
     },
     equip: {
       familiar: runawayFamiliar,
-      equip: [...familiarGear, $item`iFlail`, $item`familiar scrapbook`],
+      equip: [...familiarGear, $item`cursed pirate cutlass`, $item`Fourth of May Cosplay Saber`],
     },
     do: new Macro().runaway(),
     chance: () => 1,

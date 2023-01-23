@@ -121,11 +121,7 @@ export const LevelingQuest: Quest = {
       ready: () => have($item`Bastille Battalion control rig`),
       completed: () => get("_bastilleGames") !== 0 || myLevel() >= args.levelto,
       do: () => {
-        if (get("ascensionsToday") === 1){
-          cliExecute(`bastille ${myPrimestat() === $stat`Mysticality` ? "myst" : myPrimestat()} brutalist gesture`);
-        } else {
-          cliExecute(`bastille ${myPrimestat() === $stat`Mysticality` ? "myst" : myPrimestat()} draftsman gesture`);
-        }
+        cliExecute(`bastille ${myPrimestat() === $stat`Mysticality` ? "myst" : myPrimestat()} brutalist gesture`);
       },
       limit: { tries: 1 },
       freeaction: true,
